@@ -4,9 +4,8 @@
 
 [Version]
 Signature   = "$Windows NT$"
-; TODO - Change the Class and ClassGuid to match the Load Order Group value, see https://msdn.microsoft.com/en-us/windows/hardware/gg462963
-; Class       = "ActivityMonitor"                         ;This is determined by the work this filter driver does
-; ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}    ;This value is determined by the Load Order Group value
+Class       = "ActivityMonitor"                         
+ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}    
 Class = "ActivityMonitor"
 ClassGuid = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}
 Provider    = %ManufacturerName%
@@ -22,21 +21,22 @@ MiniFilter.DriverFiles  = 12            ;%windir%\system32\drivers
 ;; Default install sections
 ;;
 
-[DefaultInstall]
+[DefaultInstall.NTamd64]
 OptionDesc          = %ServiceDescription%
 CopyFiles           = MiniFilter.DriverFiles
 
-[DefaultInstall.Services]
+[DefaultInstall.NTamd64.Services]
 AddService          = %ServiceName%,,MiniFilter.Service
 
 ;;
 ;; Default uninstall sections
 ;;
 
-[DefaultUninstall]
+[DefaultUninstall.NTamd64]
 DelFiles   = MiniFilter.DriverFiles
+LegacyUninstall=1
 
-[DefaultUninstall.Services]
+[DefaultUninstall.NTamd64.Services]
 DelService = %ServiceName%,0x200      ;Ensure service is stopped before deleting
 
 ;
@@ -51,9 +51,8 @@ Dependencies     = "FltMgr"
 ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
 StartType        = 3                            ;SERVICE_DEMAND_START
 ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
-; TODO - Change the Load Order Group value
-; LoadOrderGroup = "FSFilter Activity Monitor"
-LoadOrderGroup = "test"
+LoadOrderGroup = "FSFilter Activity Monitor"
+;LoadOrderGroup = "test"
 AddReg           = MiniFilter.AddRegistry
 
 ;
@@ -85,7 +84,6 @@ MiniFilter.sys = 1,,
 ;;
 
 [Strings]
-; TODO - Add your manufacturer
 ManufacturerName        = "Template"
 ServiceDescription      = "MiniFilter Mini-Filter Driver"
 ServiceName             = "MiniFilter"
@@ -95,6 +93,5 @@ DiskId1                 = "MiniFilter Device Installation Disk"
 ;Instances specific information.
 DefaultInstance         = "MiniFilter Instance"
 Instance1.Name          = "MiniFilter Instance"
-; TODO - Change the altitude value, see https://msdn.microsoft.com/en-us/windows/hardware/drivers/ifs/load-order-groups-and-altitudes-for-minifilter-drivers
-Instance1.Altitude       = "371000""
+Instance1.Altitude       = "371000"
 Instance1.Flags         = 0x0              ; Allow all attachments

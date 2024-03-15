@@ -18,6 +18,9 @@ Environment:
 #include <dontuse.h>
 #include <suppress.h>
 #include <wdm.h>
+#include<stdio.h>
+#include<stdlib.h>
+
 
 
 
@@ -96,8 +99,6 @@ FLT_PREOP_CALLBACK_STATUS MiniPreCreate(
 	//wchar_t : big chungus char, char só 256 possibilidades, wchar 65536 possibilidades
 	
 	WCHAR nomeDoArquivo[260] = {0};
-
-
 
 	// Data: estrtura de dados para operção de I/O
 	// Segundo Parametro: especifica o formato da informação a ser retornada e metodo de query
