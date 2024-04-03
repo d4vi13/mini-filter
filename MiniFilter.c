@@ -18,11 +18,10 @@ Environment:
 #include <dontuse.h>
 #include <suppress.h>
 #include <wdm.h>
-#include<stdio.h>
-#include<stdlib.h>
 
 
 
+#define ARQ_MONITORADO L"target.txt"
 
 PFLT_FILTER FilterHandle = NULL;
 
@@ -43,6 +42,12 @@ FLT_PREOP_CALLBACK_STATUS MiniPreWrite(
 	PFLT_CALLBACK_DATA Data,
 	PCFLT_RELATED_OBJECTS FltObjects,
 	PVOID* CompletionContext);
+
+VOID ProcCreateCallback(
+	HANDLE hParent,
+	HANDLE hProcess,
+	BOOLEAN create
+);
 
 const FLT_OPERATION_REGISTRATION Callbacks[] = {
 	{IRP_MJ_CREATE,0,MiniPreCreate,MiniPostCreate},
@@ -80,7 +85,7 @@ FLT_POSTOP_CALLBACK_STATUS MiniPostCreate(
 	PVOID* CompletionContext,
 	FLT_POST_OPERATION_FLAGS Flags) 
 {
-	KdPrint(("Rotina de pos operação foi chamada"));
+	//KdPrint(("Rotina de pos operação foi chamada"));
 	return FLT_POSTOP_FINISHED_PROCESSING;
 }
 
@@ -98,7 +103,7 @@ FLT_PREOP_CALLBACK_STATUS MiniPreCreate(
 	//WCHAR é um typedef em cima de wchar_t
 	//wchar_t : big chungus char, char só 256 possibilidades, wchar 65536 possibilidades
 	
-	WCHAR nomeDoArquivo[260] = {0};
+	WCHAR nomeDoArquivo[250] = {0};
 
 	// Data: estrtura de dados para operção de I/O
 	// Segundo Parametro: especifica o formato da informação a ser retornada e metodo de query
@@ -114,7 +119,8 @@ FLT_PREOP_CALLBACK_STATUS MiniPreCreate(
 				// copia um bloco de memoria(indicado pelo segundo parametro) para outro local(primeiro parametro)
 				// ultimo parametro define o numero de bytes a ser copiado
 				RtlCopyMemory(nomeDoArquivo, FileNameInfo->Name.Buffer, FileNameInfo->Name.MaximumLength);
-				KdPrint(("Um arquivo foi criado: %ws", nomeDoArquivo));
+				if (wcsstr(nomeDoArquivo, ARQ_MONITORADO)) 
+					KdPrint(("O arquivo % ws foi criado", nomeDoArquivo));
 			}
 		}
 		FltReleaseFileNameInformation(FileNameInfo);
@@ -132,16 +138,18 @@ FLT_PREOP_CALLBACK_STATUS MiniPreWrite(
 {
 	PFLT_FILE_NAME_INFORMATION FileNameInfo;
 	NTSTATUS status;
-	WCHAR nomeDoArquivo[260] = { 0 };
+	WCHAR nomeDoArquivo[257] = { 0 };
 
 	status = FltGetFileNameInformation(Data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &FileNameInfo);
 
 	if (NT_SUCCESS(status)) {
 		status = FltParseFileNameInformation(FileNameInfo);
 		if (NT_SUCCESS(status)) {
-			if (FileNameInfo->Name.MaximumLength < 260) {
+			if (FileNameInfo->Name.MaximumLength <= 256) {
 				RtlCopyMemory(nomeDoArquivo, FileNameInfo->Name.Buffer, FileNameInfo->Name.MaximumLength);
-				KdPrint(("Um arquivo foi escrito: %ws", nomeDoArquivo));
+				if (wcsstr(nomeDoArquivo, ARQ_MONITORADO)) {
+					KdPrint(("Houve uma escrita em: %ws", nomeDoArquivo));
+				}
 			}
 		}
 		FltReleaseFileNameInformation(FileNameInfo);
@@ -150,10 +158,39 @@ FLT_PREOP_CALLBACK_STATUS MiniPreWrite(
 	// FLT_PREOP_SUCCESS_NO_CALLBACK sinaliza que não para chamar as pos operações
 	return FLT_PREOP_SUCCESS_NO_CALLBACK;
 }
+VOID ProcCreateCallback(
+	HANDLE hParent,
+	HANDLE hProcess,
+	BOOLEAN create) 
+{
+	if (create) {
+		PEPROCESS proc;
+		PUNICODE_STRING nome, nomeFilho, target;
+		WCHAR buffer[255] = L"target.exe\0";
+
+		RtlInitEmptyUnicodeString(target, buffer,sizeof(buffer));
+
+		PsLookupProcessByProcessId(hParent, &proc);
+		SeLocateProcessImageName(proc, &nome);
+
+		PsLookupProcessByProcessId(hProcess, &proc);
+		SeLocateProcessImageName(proc, &nomeFilho);
+
+		if (!RtlCompareUnicodeString(nome, target, FALSE)) {
+			KdPrint(("%wZ foi iniciado", nome));
+			KdPrint(("%wZ foi iniciou %wZ", nome,nomeFilho));
+		}
+	}
+}
 
 NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 {
 	NTSTATUS status;
+
+	status = PsSetCreateProcessNotifyRoutine(ProcCreateCallback, FALSE);
+
+	if (!NT_SUCCESS(status))
+		KdPrint(("Não foi possivel registrar o callback de monitoramento de processo."));
 
 	// Registrar driver no filter manager 
 	status = FltRegisterFilter(DriverObject, &FilterRegistration, &FilterHandle);

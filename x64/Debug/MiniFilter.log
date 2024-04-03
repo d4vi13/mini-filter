@@ -1,0 +1,8 @@
+﻿  Building 'MiniFilter' with toolset 'WindowsKernelModeDriver10.0' and the 'Desktop' target platform.
+  Stamping x64\Debug\MiniFilter.inf
+  Stamping [Version] section with DriverVer=04/02/2024,9.1.38.316
+C:\Users\win_t\source\repos\mini-filter-main\MiniFilter.inf(73-73): warning 1205: Section [MiniFilter.DriverFiles] referenced from DelFiles and CopyFiles directive.
+  MiniFilter.c
+C:\Users\win_t\source\repos\mini-filter-main\MiniFilter.c(170,29): error C2220: the following warning is treated as an error
+C:\Users\win_t\source\repos\mini-filter-main\MiniFilter.c(170,29): warning C4047: 'function': 'PUNICODE_STRING' differs in levels of indirection from 'PUNICODE_STRING *'
+C:\Users\win_t\source\repos\mini-filter-main\MiniFilter.c(170,29): warning C4024: 'RtlInitEmptyUnicodeString': different types for formal and actual parameter 1
