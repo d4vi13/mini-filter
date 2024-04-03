@@ -21,7 +21,8 @@ Environment:
 
 
 
-#define ARQ_MONITORADO L"target.txt"
+#define ARQ_MONITORADO L"target.exe"
+#define ARQ_ESCRITO L"arqImportante.txt"
 
 PFLT_FILTER FilterHandle = NULL;
 
@@ -72,12 +73,15 @@ const FLT_REGISTRATION FilterRegistration = {
 	NULL,
 };
 
+
+
 NTSTATUS MiniUnload(FLT_FILTER_UNLOAD_FLAGS Flags)
 {
 	FltUnregisterFilter(FilterHandle);
 
 	return STATUS_SUCCESS;
 }
+
 
 FLT_POSTOP_CALLBACK_STATUS MiniPostCreate(
 	PFLT_CALLBACK_DATA Data,
@@ -119,8 +123,8 @@ FLT_PREOP_CALLBACK_STATUS MiniPreCreate(
 				// copia um bloco de memoria(indicado pelo segundo parametro) para outro local(primeiro parametro)
 				// ultimo parametro define o numero de bytes a ser copiado
 				RtlCopyMemory(nomeDoArquivo, FileNameInfo->Name.Buffer, FileNameInfo->Name.MaximumLength);
-				if (wcsstr(nomeDoArquivo, ARQ_MONITORADO)) 
-					KdPrint(("O arquivo % ws foi criado", nomeDoArquivo));
+				if (wcsstr(nomeDoArquivo, ARQ_ESCRITO))
+					KdPrint(("O arquivo % ws foi criado\n", nomeDoArquivo));
 			}
 		}
 		FltReleaseFileNameInformation(FileNameInfo);
@@ -139,21 +143,41 @@ FLT_PREOP_CALLBACK_STATUS MiniPreWrite(
 	PFLT_FILE_NAME_INFORMATION FileNameInfo;
 	NTSTATUS status;
 	WCHAR nomeDoArquivo[257] = { 0 };
+	WCHAR targetProcNome[] = ARQ_MONITORADO;
+	
+	//WCHAR* targetProcNome = (WCHAR*)ExAllocatePool(NonPagedPoolExecute,sizeof(WCHAR) * 255);
+	HANDLE pid = PsGetCurrentProcessId();
+	PEPROCESS proc;
+	PUNICODE_STRING nome;
 
-	status = FltGetFileNameInformation(Data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &FileNameInfo);
 
-	if (NT_SUCCESS(status)) {
-		status = FltParseFileNameInformation(FileNameInfo);
-		if (NT_SUCCESS(status)) {
-			if (FileNameInfo->Name.MaximumLength <= 256) {
-				RtlCopyMemory(nomeDoArquivo, FileNameInfo->Name.Buffer, FileNameInfo->Name.MaximumLength);
-				if (wcsstr(nomeDoArquivo, ARQ_MONITORADO)) {
-					KdPrint(("Houve uma escrita em: %ws", nomeDoArquivo));
+	//if (targetProcNome != NULL) {
+		PsLookupProcessByProcessId(pid, &proc);
+		SeLocateProcessImageName(proc, &nome);
+
+		//RtlZeroMemory(targetProcNome, sizeof(WCHAR) * 255);
+		//if (!wcscpy(targetProcNome, ARQ_MONITORADO)) {
+		if(nome->Buffer != NULL){
+			if (wcsstr(nome->Buffer, targetProcNome) != NULL) {
+				//RtlCopyMemory(targetProcNome, ARQ_MONITORADO, sizeof(WCHAR) * 255);
+				status = FltGetFileNameInformation(Data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &FileNameInfo);
+
+				if (NT_SUCCESS(status)) {
+					status = FltParseFileNameInformation(FileNameInfo);
+					if (NT_SUCCESS(status)) {
+						if (FileNameInfo->Name.MaximumLength <= 256) {
+							RtlCopyMemory(nomeDoArquivo, FileNameInfo->Name.Buffer, FileNameInfo->Name.MaximumLength);
+							KdPrint(("%wZ(PID: %d) realizou uma escrita em :\n", targetProcNome, pid));
+							KdPrint(("9Houve uma escrita em: %ws\n", nomeDoArquivo));
+						}
+					}
+					FltReleaseFileNameInformation(FileNameInfo);
 				}
 			}
 		}
-		FltReleaseFileNameInformation(FileNameInfo);
-	}
+		//ExFreePool(targetProcNome);
+
+	//}
 
 	// FLT_PREOP_SUCCESS_NO_CALLBACK sinaliza que não para chamar as pos operações
 	return FLT_PREOP_SUCCESS_NO_CALLBACK;
@@ -163,12 +187,18 @@ VOID ProcCreateCallback(
 	HANDLE hProcess,
 	BOOLEAN create) 
 {
-	if (create) {
-		PEPROCESS proc;
-		PUNICODE_STRING nome, nomeFilho, target;
-		WCHAR buffer[255] = L"target.exe\0";
 
-		RtlInitEmptyUnicodeString(target, buffer,sizeof(buffer));
+	PEPROCESS proc;
+	PUNICODE_STRING nome, nomeFilho, target;
+	WCHAR* buffer = (WCHAR *)ExAllocatePool(NonPagedPoolExecute, sizeof(WCHAR)*255);
+
+	if (buffer != NULL) {
+
+		RtlZeroMemory(buffer, sizeof(WCHAR) * 255);
+
+		wcscpy(buffer, ARQ_MONITORADO);
+
+		//RtlInitUnicodeString(target, buffer, sizeof(buffer));
 
 		PsLookupProcessByProcessId(hParent, &proc);
 		SeLocateProcessImageName(proc, &nome);
@@ -176,10 +206,17 @@ VOID ProcCreateCallback(
 		PsLookupProcessByProcessId(hProcess, &proc);
 		SeLocateProcessImageName(proc, &nomeFilho);
 
-		if (!RtlCompareUnicodeString(nome, target, FALSE)) {
-			KdPrint(("%wZ foi iniciado", nome));
-			KdPrint(("%wZ foi iniciou %wZ", nome,nomeFilho));
+		//KdPrint(("%wZ foi iniciado ou abriu um subprocesso\n", nome));
+
+		if (wcsstr(nome->Buffer, buffer) != NULL){
+			KdPrint(("%wZ(PID: %d)(fPID: %d) foi iniciado ou abriu um subprocesso\n", nome,hParent,hProcess));
+			if(create)
+				KdPrint(("%wZ foi iniciou %wZ\n", nome, nomeFilho));
+			else
+				KdPrint(("%wZ foi encerrou %wZ\n", nome, nomeFilho));
 		}
+
+		ExFreePool(buffer);
 	}
 }
 
@@ -190,7 +227,10 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	status = PsSetCreateProcessNotifyRoutine(ProcCreateCallback, FALSE);
 
 	if (!NT_SUCCESS(status))
-		KdPrint(("Não foi possivel registrar o callback de monitoramento de processo."));
+		KdPrint(("Não foi possivel registrar o callback de monitoramento de processo\n"));
+	else 
+		KdPrint(("Callback de monitoramento de processo registrado\n"));
+
 
 	// Registrar driver no filter manager 
 	status = FltRegisterFilter(DriverObject, &FilterRegistration, &FilterHandle);
