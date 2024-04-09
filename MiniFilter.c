@@ -167,7 +167,7 @@ FLT_PREOP_CALLBACK_STATUS MiniPreWrite(
 					if (NT_SUCCESS(status)) {
 						if (FileNameInfo->Name.MaximumLength <= 256) {
 							RtlCopyMemory(nomeDoArquivo, FileNameInfo->Name.Buffer, FileNameInfo->Name.MaximumLength);
-							KdPrint(("%wZ(PID: %d) realizou uma escrita em :\n", targetProcNome, pid));
+							KdPrint(("%wZ(PID: %d) realizou uma escrita em :\n", nome, pid));
 							KdPrint(("9Houve uma escrita em: %ws\n", nomeDoArquivo));
 						}
 					}
