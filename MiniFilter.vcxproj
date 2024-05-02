@@ -35,7 +35,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="info.c" />
+    <ClCompile Include="mjfunc.c" />
+    <ClCompile Include="procinfo.c" />
     <ResourceCompile Include="MiniFilter.rc" />
+    <ClCompile Include="..\..\..\Downloads\amaterasu-main\amaterasu-main\src\info\utils.c" />
+    <ClCompile Include="..\..\..\Downloads\fileinfo.c" />
+    <ClCompile Include="filelist.c" />
     <ClCompile Include="MiniFilter.c" />
     <Inf Include="MiniFilter.inf" />
   </ItemGroup>
@@ -189,6 +195,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Downloads\amaterasu-main\amaterasu-main\src\info\utils.h" />
+    <ClInclude Include="fileinfo.h" />
+    <ClInclude Include="filelist.h" />
+    <ClInclude Include="info.h" />
+    <ClInclude Include="mainHeader.h" />
+    <ClInclude Include="mjfunc.h" />
+    <ClInclude Include="procinfo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
