@@ -385,6 +385,40 @@ FLT_PREOP_CALLBACK_STATUS AmaterasuDefaultPreCallback(
 	return FLT_PREOP_SUCCESS_NO_CALLBACK;
 
 }
+
+NTSTATUS CloneFileInfo(PIRP Irp, PIO_STATCK_LOCATION IrpIoStack, PULONG InfoSize){
+    
+    
+
+    return status;
+}
+
+NTSTATUS IoControl(PDEVICE_OBJECT Device, PIRP Irp){
+    PIO_STATCK_LOCATION IrpIoStack = IoGetCurrentIrpStackLocation(Irp);
+    ULONG IoCtl, ClonedInfoSize;
+    NTSTATUS status = NT_SUCCESS;
+
+    if (IrpIoStack != NULL){
+        IoCtl = IrpIoStack->Parameters.DeviceIoControl.IoControlCode;
+        switch (IoCtl) {
+            case IOCTL_FILE_LOG:
+                status = CloneFileInfo(Irp, IrpIoStack, &ClonedInfoSize);
+                break;
+            case IOCTL_PROC_LOG:
+                break;
+            default:
+                break;
+        }
+    }
+
+    Irp->IoStatus.Status = status;
+    Irp->IoStatus.Information = ClonedInfoSize;
+
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+    return status;
+}
+
 NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 {
 	NTSTATUS status;
