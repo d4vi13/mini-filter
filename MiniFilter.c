@@ -1,4 +1,4 @@
-/*++
+/*
 
 Module Name:
 
@@ -24,7 +24,8 @@ Environment:
 #include "info.h"
 
 
-
+#define DRIVER_NAME L"\\Device\\MiniFilter"
+#define DEVICE_SYM_LINK L"\\DosDevices\\MiniFilter"
 #define ARQ_MONITORADO L"target.exe"
 #define ARQ_ESCRITO L"arqImportante.txt"
 #define LOG_PATH L"\\DosDevices\\C:\\WINDOWS\\arquivoLog.txt"
@@ -422,6 +423,28 @@ NTSTATUS IoControl(PDEVICE_OBJECT Device, PIRP Irp){
 NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 {
 	NTSTATUS status;
+	PDEVICE_OBJECT device;
+
+	UNICODE_STRING driverName, deviceSymLink;
+
+	RtlInitUnicodeSring(&driverName, DRIVER_NAME);
+	RtlInitUnicodeSring(&deviceSymName, DEVICE_SYM_LINK);
+
+	status = IoCreateDevice(DriverObject,0, &driverName,
+			FILE_DEVICE_UNKNOWN,FILE_DEVICE_SECURE_OPEN,
+			FALSE, &device);
+
+	if (!NT_SUCCESS(status))
+		KdPrint(("não foi possivel criar dispositivo\n"));
+
+	// cria link simbolico entre o dispositivo e um nome visivel para o usuario
+	status = IoCreateSymbolicLink(&deviceSymLink,&driverName); 
+	
+
+	if (!NT_SUCCESS(status))
+		KdPrint(("Não foi possivel criar link simbolico"));
+
+	DriverObject->DeviceObject = device;
 
 	status = PsSetCreateProcessNotifyRoutine(ProcCreateCallback, FALSE);
 
@@ -430,6 +453,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	else 
 		KdPrint(("Callback de monitoramento de processo registrado\n"));
 
+	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = IoControl;
 
 	// Registrar driver no filter manager 
 	status = FltRegisterFilter(DriverObject, &FilterRegistration, &FilterHandle);
