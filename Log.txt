@@ -1,0 +1,74 @@
+{
+"date": "27/5/2024",
+"time": "16:25:828",
+"mjFunc": "4",
+"pid": "6512",
+"sid": "1",
+"isElevated": "3",
+"path": "\Device\HarddiskVolume3\DRIVERs\driver4\arqImportante.txt"fileName": "mportante.txt}
+{
+"date": "27/5/2024",
+"time": "16:25:842",
+"mjFunc": "4",
+"pid": "6512",
+"sid": "1",
+"isElevated": "3",
+"path": "\Device\HarddiskVolume3\DRIVERs\driver4\arqImportante.txt"fileName": "mportante.txt}
+{
+"date": "27/5/2024",
+"time": "16:25:842",
+"mjFunc": "4",
+"pid": "6512",
+"sid": "1",
+"isElevated": "3",
+"path": "\Device\HarddiskVolume3\DRIVERs\driver4\arqImportante.txt",
+"fileName": "mportante.txt}
+{
+"date": "27/5/2024",
+"time": "16:25:842",
+"mjFunc": "4",
+"pid": "6512",
+"sid": "1",
+"isElevated": "3",
+"path": "\Device\HarddiskVolume3\DRIVERs\driver4\arqImportante.txt",
+"fileName": "mportante.txt" 
+}
+{
+"date": "27/5/2024",
+"time": "16:33:326",
+"mjFunc": "4",
+"pid": "4756",
+"sid": "1",
+"isElevated": "3",
+"path": "\Device\HarddiskVolume3\DRIVERs\driver4\arqImportante.txt"fileName": "mportante.txt" 
+}
+{
+"date": "27/5/2024",
+"time": "16:33:326",
+"mjFunc": "4",
+"pid": "4756",
+"sid": "1",
+"isElevated": "3",
+"path": "\Device\HarddiskVolume3\DRIVERs\driver4\arqImportante.txt",
+"fileName": "mportante.txt" 
+}
+{
+"date": "27/5/2024",
+"time": "16:33:326",
+"mjFunc": "4",
+"pid": "4756",
+"sid": "1",
+"isElevated": "3",
+"path": "\Device\HarddiskVolume3\DRIVERs\driver4\arqImportante.txt",
+"fileName": "mportante.txt" 
+}
+{
+"date": "27/5/2024",
+"time": "16:33:326",
+"mjFunc": "4",
+"pid": "4756",
+"sid": "1",
+"isElevated": "3",
+"path": "\Device\HarddiskVolume3\DRIVERs\driver4\arqImportante.txt",
+"fileName": "mportante.txt" 
+}
