@@ -35,7 +35,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="amaterasu.c" />
+    <ClCompile Include="callbacks.c" />
+    <ClCompile Include="entry.c" />
+    <ClCompile Include="info.c" />
+    <ClCompile Include="infolist.c" />
+    <ClCompile Include="ioctl.c" />
+    <ClCompile Include="mjfunc.c" />
+    <ClCompile Include="procinfo.c" />
+    <ClCompile Include="utils.c" />
     <ResourceCompile Include="MiniFilter.rc" />
+    <ClCompile Include="..\..\..\Downloads\fileinfo.c" />
     <ClCompile Include="MiniFilter.c" />
     <Inf Include="MiniFilter.inf" />
   </ItemGroup>
@@ -69,6 +79,7 @@
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>WDM</DriverType>
+    <Driver_SpectreMitigation>Spectre</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -76,6 +87,7 @@
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>WDM</DriverType>
+    <Driver_SpectreMitigation>Spectre</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -157,6 +169,7 @@
     </Link>
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <DriverSign>
       <FileDigestAlgorithm>SHA256</FileDigestAlgorithm>
@@ -166,6 +179,9 @@
     <Link>
       <AdditionalDependencies>fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <Link>
@@ -189,6 +205,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="amaterasu.h" />
+    <ClInclude Include="callbacks.h" />
+    <ClInclude Include="fileinfo.h" />
+    <ClInclude Include="info.h" />
+    <ClInclude Include="infolist.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="ioctl.h" />
+    <ClInclude Include="mjfunc.h" />
+    <ClInclude Include="procinfo.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
