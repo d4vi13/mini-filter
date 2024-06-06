@@ -35,6 +35,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="amaterasu.c" />
+    <ClCompile Include="callbacks.c" />
+    <ClCompile Include="entry.c" />
+    <ClCompile Include="fileinfo.c" />
+    <ClCompile Include="fsinfo.c" />
+    <ClCompile Include="info.c" />
+    <ClCompile Include="infolist.c" />
+    <ClCompile Include="ioctl.c" />
+    <ClCompile Include="LoadImage.c" />
+    <ClCompile Include="procdata.c" />
+    <ClCompile Include="procinfo.c" />
+    <ClCompile Include="RegInfo.c" />
+    <ClCompile Include="token.c" />
+    <ClCompile Include="utils.c" />
     <ResourceCompile Include="MiniFilter.rc" />
     <ClCompile Include="MiniFilter.c" />
     <Inf Include="MiniFilter.inf" />
@@ -69,6 +83,7 @@
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>WDM</DriverType>
+    <Driver_SpectreMitigation>Spectre</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -76,6 +91,7 @@
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>WDM</DriverType>
+    <Driver_SpectreMitigation>Spectre</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -157,6 +173,8 @@
     </Link>
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <DriverSign>
       <FileDigestAlgorithm>SHA256</FileDigestAlgorithm>
@@ -166,6 +184,9 @@
     <Link>
       <AdditionalDependencies>fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <Link>
@@ -189,6 +210,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="amaterasu.h" />
+    <ClInclude Include="callbacks.h" />
+    <ClInclude Include="fileinfo.h" />
+    <ClInclude Include="fsinfo.h" />
+    <ClInclude Include="info.h" />
+    <ClInclude Include="infolist.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="ioctl.h" />
+    <ClInclude Include="LoadImage.h" />
+    <ClInclude Include="procdata.h" />
+    <ClInclude Include="procinfo.h" />
+    <ClInclude Include="RegInfo.h" />
+    <ClInclude Include="registration.h" />
+    <ClInclude Include="token.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
